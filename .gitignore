@@ -1,0 +1,32 @@
+# Environment
+.env
+
+# Media storage (don't commit gigabytes of images)
+media/
+thumbnails/
+backups/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node / React
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+frontend/.next/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+postgres_data/
