@@ -30,3 +30,7 @@ Thumbs.db
 
 # Docker volumes
 postgres_data/
+
+# Codex Stuff
+codex-session.txt
+codex-logs/
