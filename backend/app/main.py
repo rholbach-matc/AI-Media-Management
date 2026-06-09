@@ -4,13 +4,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.core.database import engine
+from app.api.routes import auth
+from app.core.database import AsyncSessionLocal, engine
+from app.core.seed import seed_default_users
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.connect() as connection:
         await connection.execute(text("SELECT 1"))
+    async with AsyncSessionLocal() as session:
+        await seed_default_users(session)
     yield
     await engine.dispose()
 
@@ -29,3 +33,6 @@ app.add_middleware(
 @app.get("/api/health")
 async def health_check() -> dict[str, str]:
     return {"status": "healthy"}
+
+
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
