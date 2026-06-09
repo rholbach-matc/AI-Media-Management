@@ -46,7 +46,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setAccessToken(response.access_token);
       setApiToken(response.access_token);
       setUser(response.user);
-      navigate('/', { replace: true });
+      navigate('/gallery', { replace: true });
     } finally {
       setLoading(false);
     }
