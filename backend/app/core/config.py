@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     MEDIA_DIR: str
     THUMBNAIL_DIR: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    DEFAULT_USER_PASS_RYAN: str | None = None
+    DEFAULT_USER_PASS_BELLA: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
