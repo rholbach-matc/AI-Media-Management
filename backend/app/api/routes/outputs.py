@@ -46,6 +46,7 @@ async def upload_output(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     file: UploadFile = File(...),
+    title: str | None = Form(default=None),
     prompt_text: str | None = Form(default=None),
     prompt_type: PromptType = Form(default=PromptType.BASE),
     parent_id: uuid.UUID | None = Form(default=None),
@@ -58,6 +59,7 @@ async def upload_output(
     return await _create_output_from_upload(
         db=db,
         file=file,
+        title=title,
         prompt_text=prompt_text,
         prompt_type=prompt_type,
         parent_id=parent_id,
@@ -73,6 +75,7 @@ async def upload_outputs_bulk(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[AsyncSession, Depends(get_db)],
     files: list[UploadFile] = File(...),
+    title: str | None = Form(default=None),
     prompt_text: str | None = Form(default=None),
     prompt_type: PromptType = Form(default=PromptType.BASE),
     parent_id: uuid.UUID | None = Form(default=None),
@@ -88,6 +91,7 @@ async def upload_outputs_bulk(
             await _create_output_from_upload(
                 db=db,
                 file=upload,
+                title=title,
                 prompt_text=prompt_text,
                 prompt_type=prompt_type,
                 parent_id=parent_id,
@@ -126,7 +130,7 @@ async def list_outputs(
     if search:
         needs_prompt_join = True
         search_pattern = f"%{search.strip()}%"
-        conditions.append(or_(OutputNode.notes.ilike(search_pattern), Prompt.prompt_text.ilike(search_pattern)))
+        conditions.append(or_(OutputNode.title.ilike(search_pattern), OutputNode.notes.ilike(search_pattern), Prompt.prompt_text.ilike(search_pattern)))
 
     count_stmt = select(func.count(func.distinct(OutputNode.id))).select_from(OutputNode)
     query: Select[tuple[OutputNode]] = select(OutputNode).options(
@@ -207,6 +211,7 @@ async def _create_output_from_upload(
     *,
     db: AsyncSession,
     file: UploadFile,
+    title: str | None,
     prompt_text: str | None,
     prompt_type: PromptType,
     parent_id: uuid.UUID | None,
@@ -264,6 +269,7 @@ async def _create_output_from_upload(
             width=thumbnail.metadata.width,
             height=thumbnail.metadata.height,
             duration=thumbnail.metadata.duration,
+            title=title.strip() if title and title.strip() else None,
             rating=rating,
             is_favorite=False,
             notes=notes,
@@ -336,6 +342,7 @@ def serialize_output(output: OutputNode) -> OutputResponse:
         parent_id=output.parent_id,
         tree_id=output.tree_id,
         node_type=output.node_type,
+        title=output.title,
         file_path=output.file_path,
         thumbnail_path=output.thumbnail_path,
         animated_thumbnail_path=output.animated_thumbnail_path,
@@ -367,6 +374,7 @@ def _summary(output: OutputNode) -> OutputSummary:
     return OutputSummary(
         id=output.id,
         node_type=output.node_type,
+        title=output.title,
         file_path=output.file_path,
         thumbnail_path=output.thumbnail_path,
         animated_thumbnail_path=output.animated_thumbnail_path,

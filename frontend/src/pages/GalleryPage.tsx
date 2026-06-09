@@ -88,7 +88,7 @@ export function GalleryPage() {
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search prompts and notes"
+              placeholder="Search titles, prompts, and notes"
               className="h-11 w-full rounded-md border border-slate-700 bg-slate-950/70 pl-10 pr-3 text-ink outline-none focus:border-cyan-300"
             />
           </label>
@@ -216,7 +216,14 @@ function GalleryCard({ item }: { item: OutputNode }) {
         </div>
       </div>
       {item.mime_type.startsWith('video/') ? (
-        <span className="absolute bottom-2 right-2 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-medium text-cyan-100">Video</span>
+        <span className={`absolute right-2 rounded-md bg-slate-950/80 px-2 py-1 text-xs font-medium text-cyan-100 ${item.title ? 'bottom-10' : 'bottom-2'}`}>
+          Video
+        </span>
+      ) : null}
+      {item.title ? (
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/95 via-slate-950/70 to-transparent px-2 pb-2 pt-8">
+          <p className="truncate text-sm font-medium text-slate-100">{item.title}</p>
+        </div>
       ) : null}
     </Link>
   );
