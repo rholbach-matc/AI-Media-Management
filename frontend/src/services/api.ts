@@ -1,4 +1,4 @@
-import type { ApiErrorResponse, LoginResponse, User } from '../types';
+import type { ApiErrorResponse, LoginResponse, OutputListResponse, OutputNode, OutputQueryParams, OutputUpdate, User } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8100/api';
 
@@ -25,7 +25,9 @@ export function setUnauthorizedHandler(handler: (() => void) | null): void {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  headers.set('Content-Type', 'application/json');
+  if (!(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
 
   if (accessToken) {
     headers.set('Authorization', `Bearer ${accessToken}`);
@@ -66,5 +68,39 @@ export const api = {
   },
   me(): Promise<User> {
     return request<User>('/auth/me');
+  },
+  uploadOutput(formData: FormData): Promise<OutputNode> {
+    return request<OutputNode>('/outputs/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+  uploadOutputsBulk(formData: FormData): Promise<{ items: OutputNode[] }> {
+    return request<{ items: OutputNode[] }>('/outputs/upload/bulk', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+  getOutputs(params: OutputQueryParams = {}): Promise<OutputListResponse> {
+    const query = new URLSearchParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        query.set(key, String(value));
+      }
+    });
+    const suffix = query.toString() ? `?${query.toString()}` : '';
+    return request<OutputListResponse>(`/outputs${suffix}`);
+  },
+  getOutput(id: string): Promise<OutputNode> {
+    return request<OutputNode>(`/outputs/${id}`);
+  },
+  updateOutput(id: string, data: OutputUpdate): Promise<OutputNode> {
+    return request<OutputNode>(`/outputs/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+  deleteOutput(id: string): Promise<{ message: string }> {
+    return request<{ message: string }>(`/outputs/${id}`, { method: 'DELETE' });
   },
 };

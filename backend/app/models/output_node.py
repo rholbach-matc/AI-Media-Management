@@ -20,6 +20,7 @@ class OutputNode(Base):
     node_type: Mapped[NodeType] = mapped_column(Enum(NodeType, name="node_type", values_callable=enum_values), nullable=False)
     file_path: Mapped[str] = mapped_column(String, nullable=False)
     thumbnail_path: Mapped[str | None] = mapped_column(String, nullable=True)
+    animated_thumbnail_path: Mapped[str | None] = mapped_column(String, nullable=True)
     mime_type: Mapped[str] = mapped_column(String, nullable=False)
     file_size: Mapped[int] = mapped_column(BigInteger, nullable=False)
     width: Mapped[int] = mapped_column(Integer, nullable=False)

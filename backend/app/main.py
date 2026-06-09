@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.routes import auth
+from app.api.routes import auth, outputs
 from app.core.database import AsyncSessionLocal, engine
 from app.core.seed import seed_default_users
 
@@ -36,3 +36,4 @@ async def health_check() -> dict[str, str]:
 
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(outputs.router, prefix="/api/outputs", tags=["outputs"])
