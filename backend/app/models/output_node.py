@@ -18,6 +18,7 @@ class OutputNode(Base):
     parent_id: Mapped[str | None] = mapped_column(UUID(as_uuid=True), ForeignKey("output_nodes.id", ondelete="SET NULL"), nullable=True)
     tree_id: Mapped[str] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     node_type: Mapped[NodeType] = mapped_column(Enum(NodeType, name="node_type", values_callable=enum_values), nullable=False)
+    title: Mapped[str | None] = mapped_column(String, nullable=True)
     file_path: Mapped[str] = mapped_column(String, nullable=False)
     thumbnail_path: Mapped[str | None] = mapped_column(String, nullable=True)
     animated_thumbnail_path: Mapped[str | None] = mapped_column(String, nullable=True)

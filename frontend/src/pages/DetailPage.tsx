@@ -11,6 +11,8 @@ export function DetailPage() {
   const navigate = useNavigate();
   const [output, setOutput] = useState<OutputNode | null>(null);
   const [galleryItems, setGalleryItems] = useState<OutputNode[]>([]);
+  const [title, setTitle] = useState('');
+  const [editingTitle, setEditingTitle] = useState(false);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,6 +29,7 @@ export function DetailPage() {
       .then(([detail, gallery]) => {
         if (!active) return;
         setOutput(detail);
+        setTitle(detail.title ?? '');
         setNotes(detail.notes ?? '');
         setGalleryItems(gallery.items);
       })
@@ -53,16 +56,24 @@ export function DetailPage() {
   const previous = currentIndex > 0 ? galleryItems[currentIndex - 1] : null;
   const next = currentIndex >= 0 && currentIndex < galleryItems.length - 1 ? galleryItems[currentIndex + 1] : null;
 
-  async function saveUpdate(data: Partial<Pick<OutputNode, 'rating' | 'notes' | 'is_favorite' | 'moderation_outcome'>>) {
+  async function saveUpdate(data: Partial<Pick<OutputNode, 'title' | 'rating' | 'notes' | 'is_favorite' | 'moderation_outcome'>>) {
     if (!output) return;
     setSaving(true);
     try {
       const updated = await api.updateOutput(output.id, data);
       setOutput(updated);
+      setTitle(updated.title ?? '');
       setNotes(updated.notes ?? '');
     } finally {
       setSaving(false);
     }
+  }
+
+  function saveTitle() {
+    const normalizedTitle = title.trim();
+    setEditingTitle(false);
+    if (!output || normalizedTitle === (output.title ?? '')) return;
+    void saveUpdate({ title: normalizedTitle || null });
   }
 
   async function deleteOutput() {
@@ -114,6 +125,29 @@ export function DetailPage() {
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <section className="min-w-0">
+          <div className="mb-4">
+            {editingTitle ? (
+              <input
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                onBlur={saveTitle}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') saveTitle();
+                  if (event.key === 'Escape') {
+                    setTitle(output.title ?? '');
+                    setEditingTitle(false);
+                  }
+                }}
+                autoFocus
+                className="w-full rounded-md border border-slate-700 bg-slate-950/70 px-3 py-2 text-3xl font-semibold text-ink outline-none focus:border-cyan-300"
+              />
+            ) : (
+              <button type="button" className="max-w-full text-left" onClick={() => setEditingTitle(true)}>
+                <h1 className={`truncate text-3xl font-semibold ${output.title ? 'text-ink' : 'text-slate-500'}`}>{output.title || 'Untitled'}</h1>
+              </button>
+            )}
+          </div>
+
           <div className="overflow-hidden rounded-lg border border-slate-800 bg-slate-950">
             {isVideo ? (
               <video src={output.file_path} className="max-h-[78vh] w-full bg-black object-contain" controls playsInline />
@@ -181,6 +215,7 @@ export function DetailPage() {
             <h3 className="mb-4 font-semibold text-ink">Metadata</h3>
             <dl className="space-y-3 text-sm">
               <Meta label="Type" value={output.node_type.replace('_', ' ')} />
+              <Meta label="Title" value={output.title || 'Untitled'} />
               <Meta label="Dimensions" value={`${output.width} x ${output.height}`} />
               <Meta label="File size" value={formatBytes(output.file_size)} />
               <Meta label="Duration" value={output.duration ? `${output.duration.toFixed(1)}s` : isAnimatedImage ? 'Animated image' : 'N/A'} />
@@ -289,6 +324,7 @@ function RelationshipThumb({ item }: { item: OutputSummary }) {
       <div className="aspect-square">
         <img src={item.thumbnail_path || item.file_path} alt="" className="h-full w-full object-cover" />
       </div>
+      {item.title ? <p className="truncate p-2 text-xs text-slate-200">{item.title}</p> : null}
     </Link>
   );
 }

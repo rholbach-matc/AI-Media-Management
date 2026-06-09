@@ -8,6 +8,7 @@ from app.schemas.prompt import PromptResponse
 
 
 class OutputCreate(BaseModel):
+    title: str | None = None
     prompt_text: str | None = None
     prompt_type: PromptType = PromptType.BASE
     parent_id: UUID | None = None
@@ -18,6 +19,7 @@ class OutputCreate(BaseModel):
 
 
 class OutputUpdate(BaseModel):
+    title: str | None = None
     rating: int | None = Field(default=None, ge=1, le=10)
     notes: str | None = None
     is_favorite: bool | None = None
@@ -27,6 +29,7 @@ class OutputUpdate(BaseModel):
 class OutputSummary(BaseModel):
     id: UUID
     node_type: NodeType
+    title: str | None
     file_path: str
     thumbnail_path: str | None
     animated_thumbnail_path: str | None
@@ -50,6 +53,7 @@ class OutputResponse(BaseModel):
     parent_id: UUID | None
     tree_id: UUID
     node_type: NodeType
+    title: str | None
     file_path: str
     thumbnail_path: str | None
     animated_thumbnail_path: str | None

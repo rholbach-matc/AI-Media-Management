@@ -40,6 +40,7 @@ export interface Prompt {
 export interface OutputSummary {
   id: string;
   node_type: NodeType;
+  title: string | null;
   file_path: string;
   thumbnail_path: string | null;
   animated_thumbnail_path: string | null;
@@ -61,6 +62,7 @@ export interface OutputNode {
   parent_id: string | null;
   tree_id: string;
   node_type: NodeType;
+  title: string | null;
   file_path: string;
   thumbnail_path: string | null;
   animated_thumbnail_path: string | null;
@@ -102,4 +104,4 @@ export interface OutputQueryParams {
   search?: string;
 }
 
-export type OutputUpdate = Partial<Pick<OutputNode, 'rating' | 'notes' | 'is_favorite' | 'moderation_outcome'>>;
+export type OutputUpdate = Partial<Pick<OutputNode, 'title' | 'rating' | 'notes' | 'is_favorite' | 'moderation_outcome'>>;
